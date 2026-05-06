@@ -105,15 +105,76 @@ const logosBR: Record<string, string> = {
   "Santos": "https://s.sde.globo.com/media/organizations/2018/03/12/santos.svg"
 };
 
-const getLogo = (teamName: string) => logosBR[teamName] || `https://ui-avatars.com/api/?name=${encodeURIComponent(teamName)}&background=random&color=fff`;
+const flagsISO: Record<string, string> = {
+  "Brasil": "br", "Brazil": "br",
+  "Argentina": "ar",
+  "França": "fr", "France": "fr",
+  "Espanha": "es", "Spain": "es",
+  "Inglaterra": "gb-eng", "England": "gb-eng",
+  "Portugal": "pt",
+  "Alemanha": "de", "Germany": "de",
+  "Itália": "it", "Italy": "it",
+  "Uruguai": "uy", "Uruguay": "uy",
+  "Holanda": "nl", "Netherlands": "nl",
+  "Bélgica": "be", "Belgium": "be",
+  "Croácia": "hr", "Croatia": "hr",
+  "Estados Unidos": "us", "USA": "us", "United States": "us",
+  "México": "mx", "Mexico": "mx",
+  "Canadá": "ca", "Canada": "ca",
+  "Colômbia": "co", "Colombia": "co",
+  "Chile": "cl",
+  "Equador": "ec", "Ecuador": "ec",
+  "Paraguai": "py", "Paraguay": "py",
+  "Venezuela": "ve",
+  "Bolívia": "bo", "Bolivia": "bo",
+  "Peru": "pe",
+  "Japão": "jp", "Japan": "jp",
+  "Coreia do Sul": "kr", "South Korea": "kr",
+  "Senegal": "sn",
+  "Marrocos": "ma", "Morocco": "ma",
+  "Egito": "eg", "Egypt": "eg",
+  "Camarões": "cm", "Cameroon": "cm",
+  "Nigéria": "ng", "Nigeria": "ng",
+  "Suíça": "ch", "Switzerland": "ch",
+  "Suécia": "se", "Sweden": "se",
+  "Dinamarca": "dk", "Denmark": "dk",
+  "Polônia": "pl", "Poland": "pl",
+  "Sérvia": "rs", "Serbia": "rs",
+  "País de Gales": "gb-wls", "Wales": "gb-wls",
+  "Escócia": "gb-sct", "Scotland": "gb-sct",
+  "Gana": "gh", "Ghana": "gh",
+  "Tunísia": "tn", "Tunisia": "tn",
+  "Arábia Saudita": "sa", "Saudi Arabia": "sa",
+  "Austrália": "au", "Australia": "au",
+  "Costa Rica": "cr",
+  "Irã": "ir", "Iran": "ir",
+  "Catar": "qa", "Qatar": "qa",
+  "Panamá": "pa", "Panama": "pa",
+  "Jamaica": "jm",
+  "Costa do Marfim": "ci", "Ivory Coast": "ci",
+  "Argélia": "dz", "Algeria": "dz",
+  "Mali": "ml"
+};
+
+const getLogo = (teamName: string) => {
+  if (logosBR[teamName]) return logosBR[teamName];
+  if (flagsISO[teamName]) return `https://flagcdn.com/w160/${flagsISO[teamName]}.png`;
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(teamName)}&background=random&color=fff`;
+};
 
   const formatarJogos = (lista: any[], campeonato: 'brasileirao' | 'copa'): Jogo[] => {
     return lista.filter((item: any) => {
+      const is2026 = item.event_date && item.event_date.startsWith('2026');
+      const roundNum = parseInt(item.round_number) || 0;
+      
       if (campeonato === 'brasileirao') {
-        const is2026 = item.event_date && item.event_date.startsWith('2026');
-        const roundNum = parseInt(item.round_number) || 0;
         return is2026 && roundNum >= 14;
       }
+      
+      if (campeonato === 'copa') {
+        return is2026 && roundNum >= 1;
+      }
+      
       return true;
     }).map((item: any) => {
       return {
