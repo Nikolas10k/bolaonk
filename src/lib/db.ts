@@ -68,7 +68,7 @@ const defaultData: DatabaseSchema = {
     {
       id: 'admin-1',
       nome: 'Administrador',
-      cpf: '00000000000',
+      cpf: '07056578179',
       telefone: '11999999999',
       role: 'admin'
     }
