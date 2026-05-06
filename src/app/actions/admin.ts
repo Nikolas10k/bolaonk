@@ -46,16 +46,16 @@ async function fetchFromApiBzzoiro(leagueId: number) {
   let nextUrl: string | null = `https://sports.bzzoiro.com/api/v2/events/?league_id=${leagueId}&page_size=50`;
 
   while (nextUrl) {
-    const response = await fetch(nextUrl, {
+    const res: Response = await fetch(nextUrl, {
       headers: {
         'Authorization': `Token ${API_KEY}`
       }
     });
-    if (!response.ok) {
-      console.error(`Erro API League ${leagueId}:`, await response.text());
+    if (!res.ok) {
+      console.error(`Erro API League ${leagueId}:`, await res.text());
       break;
     }
-    const data = await response.json();
+    const data = await res.json();
     if (data.results && Array.isArray(data.results)) {
       allResults = allResults.concat(data.results);
     }
