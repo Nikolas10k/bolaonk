@@ -11,20 +11,20 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
   
   const jogosCampeonato = useMemo(() => jogos.filter(j => j.campeonato === abaAtiva), [jogos, abaAtiva]);
   
-  const diasDisponiveis = useMemo(() => {
-    const dias = jogosCampeonato.map(j => j.data_hora.split('T')[0]);
-    const unicos = Array.from(new Set(dias)).sort();
+  const rodadasDisponiveis = useMemo(() => {
+    const rodadas = jogosCampeonato.map(j => j.rodada.toString());
+    const unicos = Array.from(new Set(rodadas)).sort((a, b) => parseInt(a) - parseInt(b));
     return unicos;
   }, [jogosCampeonato]);
 
-  const [abaDia, setAbaDia] = useState<string>(diasDisponiveis[0] || '');
+  const [abaRodada, setAbaRodada] = useState<string>(rodadasDisponiveis[0] || '');
 
-  // Atualiza abaDia quando muda o campeonato se o dia atual não existir no novo campeonato
+  // Atualiza abaRodada quando muda o campeonato
   useMemo(() => {
-    if (diasDisponiveis.length > 0 && !diasDisponiveis.includes(abaDia)) {
-      setAbaDia(diasDisponiveis[0]);
+    if (rodadasDisponiveis.length > 0 && !rodadasDisponiveis.includes(abaRodada)) {
+      setAbaRodada(rodadasDisponiveis[0]);
     }
-  }, [diasDisponiveis, abaDia]);
+  }, [rodadasDisponiveis, abaRodada]);
 
   const [palpites, setPalpites] = useState<{ [key: string]: { casa: string, visitante: string } }>(() => {
     const estadoInicial: any = {};
@@ -36,10 +36,10 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
   const [loading, setLoading] = useState(false);
   const [mensagem, setMensagem] = useState<{ tipo: 'sucesso' | 'erro', texto: string } | null>(null);
 
-  const jogosDoDia = jogosCampeonato.filter(j => j.data_hora.startsWith(abaDia));
-  const pagamentoDoDia = pagamentosUsuario.find(p => p.data_referencia === abaDia);
-  const isPago = pagamentoDoDia?.status === 'pago';
-  const isPendente = pagamentoDoDia?.status === 'pendente';
+  const jogosDaRodada = jogosCampeonato.filter(j => j.rodada.toString() === abaRodada);
+  const pagamentoDaRodada = pagamentosUsuario.find(p => p.data_referencia === abaRodada);
+  const isPago = pagamentoDaRodada?.status === 'pago';
+  const isPendente = pagamentoDaRodada?.status === 'pendente';
 
   const handleMudar = (jogoId: string, time: 'casa' | 'visitante', valor: string) => {
     if (valor !== '' && !/^\d+$/.test(valor)) return;
@@ -54,7 +54,7 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
   };
 
   const handleSalvar = async () => {
-    if (!abaDia) return;
+    if (!abaRodada) return;
 
     setLoading(true);
     setMensagem(null);
@@ -62,7 +62,7 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
       const dataParaSalvar = [];
       const agora = new Date().getTime();
 
-      for (const jogo of jogosDoDia) {
+      for (const jogo of jogosDaRodada) {
         const dataJogo = new Date(jogo.data_hora).getTime();
         if (agora < dataJogo && palpites[jogo.id]?.casa !== '' && palpites[jogo.id]?.visitante !== '') {
           dataParaSalvar.push({
@@ -74,12 +74,12 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
       }
 
       if (dataParaSalvar.length === 0 && !isPendente) {
-        setMensagem({ tipo: 'erro', texto: 'Nenhum palpite válido preenchido para salvar neste dia.' });
+        setMensagem({ tipo: 'erro', texto: 'Nenhum palpite válido preenchido para salvar nesta rodada.' });
         setLoading(false);
         return;
       }
 
-      const result = await salvarPalpites(abaDia, dataParaSalvar);
+      const result = await salvarPalpites(abaRodada, dataParaSalvar);
       if (result.error) {
         setMensagem({ tipo: 'erro', texto: result.error });
       } else if (result.redirectTo) {
@@ -116,22 +116,22 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
         </button>
       </div>
 
-      {diasDisponiveis.length > 0 && (
+      {rodadasDisponiveis.length > 0 && (
         <div className="days-scroll">
-          {diasDisponiveis.map(dia => (
+          {rodadasDisponiveis.map(rodada => (
             <button
-              key={dia}
-              className={`badge ${abaDia === dia ? 'badge-success' : 'badge-neutral'}`}
+              key={rodada}
+              className={`badge ${abaRodada === rodada ? 'badge-success' : 'badge-neutral'}`}
               style={{ padding: '0.5rem 1rem', cursor: 'pointer', whiteSpace: 'nowrap', border: 'none', fontWeight: 600 }}
-              onClick={() => { setAbaDia(dia); setMensagem(null); }}
+              onClick={() => { setAbaRodada(rodada); setMensagem(null); }}
             >
-              {formatarDataBR(dia)}
+              Rodada {rodada}
             </button>
           ))}
         </div>
       )}
 
-      {abaDia && <h2 className="title text-center mb-6">Jogos do dia {formatarDataBR(abaDia)}</h2>}
+      {abaRodada && <h2 className="title text-center mb-6">Jogos da Rodada {abaRodada}</h2>}
       
       {mensagem && (
         <div className={`badge ${mensagem.tipo === 'sucesso' ? 'badge-success' : 'badge-danger'} mb-6`} style={{ width: '100%', padding: '1rem', borderRadius: '8px', fontSize: '0.875rem' }}>
@@ -141,24 +141,24 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
 
       {isPago && (
         <div className="badge badge-success mb-6" style={{ width: '100%', padding: '1rem', borderRadius: '8px', fontSize: '0.875rem', textAlign: 'center' }}>
-          ✅ Pagamento confirmado para este dia. Seus palpites estão na disputa!
+          ✅ Pagamento confirmado para esta rodada. Seus palpites estão na disputa!
         </div>
       )}
 
       {isPendente && (
         <div className="badge badge-danger mb-6" style={{ width: '100%', padding: '1rem', borderRadius: '8px', fontSize: '0.875rem', textAlign: 'center', backgroundColor: 'rgba(245, 158, 11, 0.2)', color: '#F59E0B' }}>
-          ⏳ Pagamento pendente para este dia. Aguardando aprovação do admin.
+          ⏳ Pagamento pendente para esta rodada. Aguardando aprovação do admin.
         </div>
       )}
 
-      {jogosDoDia.length === 0 && (
+      {jogosDaRodada.length === 0 && (
         <div className="text-center text-muted py-10">
-          Nenhum jogo disponível para esta data.
+          Nenhum jogo disponível para esta rodada.
         </div>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {jogosDoDia.map(jogo => {
+        {jogosDaRodada.map(jogo => {
           const dataJogo = new Date(jogo.data_hora);
           const jaComecou = new Date().getTime() >= dataJogo.getTime();
           const bloqueado = jaComecou || jogo.encerrado;
@@ -218,13 +218,13 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
         })}
       </div>
 
-      {jogosDoDia.length > 0 && (
+      {jogosDaRodada.length > 0 && (
         <div className="mt-6" style={{ position: 'sticky', bottom: '2rem', display: 'flex', gap: '1rem' }}>
           <button className="btn btn-primary" style={{ boxShadow: 'var(--shadow-lg)' }} onClick={handleSalvar} disabled={loading}>
             {loading ? 'Processando...' : 'Salvar Palpites'}
           </button>
           {isPendente && (
-            <button className="btn btn-secondary" onClick={() => router.push(`/dashboard/pagamento?data=${abaDia}`)}>
+            <button className="btn btn-secondary" onClick={() => router.push(`/dashboard/pagamento?data=${abaRodada}`)}>
               Pagar Bolão
             </button>
           )}

@@ -83,26 +83,26 @@ export async function mockSincronizarJogosAPI() {
   const jogosCopa = await fetchFromApiBzzoiro(27);
 
 const logosBR: Record<string, string> = {
-  "Flamengo": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Flamengo_braz_logo.svg",
-  "Palmeiras": "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg",
-  "São Paulo": "https://upload.wikimedia.org/wikipedia/commons/4/4b/S%C3%A3o_Paulo_Futebol_Clube.png",
-  "Corinthians": "https://upload.wikimedia.org/wikipedia/pt/b/b4/Corinthians_simbolo.png",
-  "Fluminense": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Escudo_Fluminense.svg",
-  "Botafogo": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Botafogo_de_Futebol_e_Regatas_logo.svg",
-  "Vasco da Gama": "https://upload.wikimedia.org/wikipedia/pt/a/ac/CRVascodaGama.png",
-  "Cruzeiro": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Cruzeiro_Esporte_Clube_logo.svg",
-  "Atlético Mineiro": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Atletico_mineiro_galo.png",
-  "Grêmio": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Gremio_logo.svg",
-  "Internacional": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Escudo_do_Sport_Club_Internacional.svg",
-  "Bahia": "https://upload.wikimedia.org/wikipedia/pt/9/90/ECBahia.png",
-  "Vitória": "https://upload.wikimedia.org/wikipedia/pt/2/2c/Esporte_Clube_Vit%C3%B3ria_logo.png",
-  "Red Bull Bragantino": "https://upload.wikimedia.org/wikipedia/pt/9/94/Red_Bull_Bragantino.png",
-  "Athletico": "https://upload.wikimedia.org/wikipedia/pt/c/c7/Club_Athletico_Paranaense_2019.png",
-  "Coritiba": "https://upload.wikimedia.org/wikipedia/commons/4/48/Coritiba_Foot_Ball_Club_logo.svg",
-  "Mirassol": "https://upload.wikimedia.org/wikipedia/pt/6/64/Mirassol_Futebol_Clube.png",
-  "Remo": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Clube_do_Remo.svg",
-  "Chapecoense": "https://upload.wikimedia.org/wikipedia/commons/4/40/Associa%C3%A7%C3%A3o_Chapecoense_de_Futebol.svg",
-  "Santos": "https://upload.wikimedia.org/wikipedia/commons/3/35/Santos_logo.svg"
+  "Flamengo": "https://s.sde.globo.com/media/organizations/2018/04/10/Flamengo-2018.svg",
+  "Palmeiras": "https://s.sde.globo.com/media/organizations/2018/03/11/palmeiras.svg",
+  "São Paulo": "https://s.sde.globo.com/media/organizations/2018/03/11/sao-paulo.svg",
+  "Corinthians": "https://s.sde.globo.com/media/organizations/2019/02/04/corinthians-65.png",
+  "Fluminense": "https://s.sde.globo.com/media/organizations/2018/03/11/fluminense.svg",
+  "Botafogo": "https://s.sde.globo.com/media/organizations/2019/02/04/botafogo-65.png",
+  "Vasco da Gama": "https://s.sde.globo.com/media/organizations/2021/09/04/vasco_65.png",
+  "Cruzeiro": "https://s.sde.globo.com/media/organizations/2018/03/11/cruzeiro.svg",
+  "Atlético Mineiro": "https://s.sde.globo.com/media/organizations/2018/03/15/atletico-mg.svg",
+  "Grêmio": "https://s.sde.globo.com/media/organizations/2018/03/12/gremio.svg",
+  "Internacional": "https://s.sde.globo.com/media/organizations/2018/03/11/internacional.svg",
+  "Bahia": "https://s.sde.globo.com/media/organizations/2018/03/11/bahia.svg",
+  "Vitória": "https://s.sde.globo.com/media/organizations/2018/03/11/vitoria.svg",
+  "Red Bull Bragantino": "https://s.sde.globo.com/media/organizations/2021/06/28/bragantino.svg",
+  "Athletico": "https://s.sde.globo.com/media/organizations/2019/09/09/Athletico-PR.svg",
+  "Coritiba": "https://s.sde.globo.com/media/organizations/2018/03/11/coritiba.svg",
+  "Mirassol": "https://s.sde.globo.com/media/organizations/2018/03/11/mirassol.svg",
+  "Remo": "https://s.sde.globo.com/media/organizations/2018/03/11/remo.svg",
+  "Chapecoense": "https://s.sde.globo.com/media/organizations/2018/03/11/chapecoense.svg",
+  "Santos": "https://s.sde.globo.com/media/organizations/2018/03/12/santos.svg"
 };
 
 const getLogo = (teamName: string) => logosBR[teamName] || `https://ui-avatars.com/api/?name=${encodeURIComponent(teamName)}&background=random&color=fff`;
@@ -154,7 +154,7 @@ export async function salvarResultado(jogoId: string, placarCasa: number, placar
 
   // Calcula pontos da rodada para esse jogo
   // Regra definida: acertou placar = 1 ponto. Errou = 0.
-  const dataReferencia = jogo.data_hora.split('T')[0];
+  const dataReferencia = jogo.rodada.toString();
   const palpitesDoJogo = db.palpites.filter(p => p.jogo_id === jogoId);
   
   for (const palpite of palpitesDoJogo) {

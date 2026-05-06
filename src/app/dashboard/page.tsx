@@ -18,7 +18,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="title" style={{ marginBottom: '0.25rem' }}>Faça Seus Palpites</h1>
           <p className="text-muted">
-            Navegue pelos campeonatos e dias. O valor do bolão é cobrado por cada dia em que você palpitar!
+            Navegue pelos campeonatos e rodadas. O valor do bolão é cobrado por cada rodada em que você palpitar!
           </p>
         </div>
       </div>
