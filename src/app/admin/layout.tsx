@@ -26,9 +26,14 @@ export default async function AdminLayout({
           <Link href="/admin/usuarios" className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>Usuários</Link>
           <Link href="/admin/jogos" className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>Jogos & API</Link>
           <Link href="/admin/configuracoes" className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>Configurações</Link>
+          <form action={logout} style={{ marginTop: 'auto' }}>
+            <button type="submit" className="btn btn-secondary" style={{ width: '100%', color: 'var(--danger)', justifyContent: 'flex-start' }}>
+              Sair
+            </button>
+          </form>
         </nav>
 
-        <div style={{ padding: '1rem', borderTop: '1px solid var(--border)' }}>
+        <div style={{ padding: '1rem', borderTop: '1px solid var(--border)', display: 'none' }}>
           <form action={logout}>
             <button type="submit" className="btn btn-secondary" style={{ width: '100%', color: 'var(--danger)' }}>
               Sair do Painel

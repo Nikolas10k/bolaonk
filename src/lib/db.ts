@@ -20,7 +20,9 @@ export type Pagamento = {
 export type Jogo = {
   id: string;
   time_casa: string;
+  time_casa_logo?: string;
   time_visitante: string;
+  time_visitante_logo?: string;
   data_hora: string; // ISO string
   rodada: number;
   campeonato: 'brasileirao' | 'copa';
@@ -77,7 +79,9 @@ const defaultData: DatabaseSchema = {
     {
       id: 'jogo-1',
       time_casa: 'Flamengo',
+      time_casa_logo: 'https://upload.wikimedia.org/wikipedia/commons/2/2e/Flamengo_braz_logo.svg',
       time_visitante: 'Palmeiras',
+      time_visitante_logo: 'https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg',
       data_hora: new Date(Date.now() + 86400000 * 2).toISOString(), // Daqui a 2 dias
       rodada: 1,
       campeonato: 'brasileirao',
@@ -88,7 +92,9 @@ const defaultData: DatabaseSchema = {
     {
       id: 'jogo-2',
       time_casa: 'São Paulo',
+      time_casa_logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/S%C3%A3o_Paulo_Futebol_Clube.png',
       time_visitante: 'Corinthians',
+      time_visitante_logo: 'https://upload.wikimedia.org/wikipedia/pt/b/b4/Corinthians_simbolo.png',
       data_hora: new Date(Date.now() - 86400000).toISOString(), // Ontem (para testar travamento)
       rodada: 1,
       campeonato: 'brasileirao',

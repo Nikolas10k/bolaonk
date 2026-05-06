@@ -52,8 +52,8 @@ export default async function AdminUsuarios() {
                       'use server';
                       await aprovarPagamento(p.id);
                     }}>
-                      <button type="submit" className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
-                        {p.status === 'pendente' ? 'Aprovar PIX' : 'Revogar'}
+                      <button type="submit" className={`btn ${p.status === 'pendente' ? 'btn-primary' : 'btn-secondary'}`} style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', backgroundColor: p.status === 'pendente' ? '#10B981' : undefined, color: p.status === 'pendente' ? '#FFF' : undefined }}>
+                        {p.status === 'pendente' ? '✅ Confirmar Recebimento do PIX' : 'Revogar'}
                       </button>
                     </form>
                   </td>

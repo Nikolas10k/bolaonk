@@ -161,7 +161,7 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
         {jogosDoDia.map(jogo => {
           const dataJogo = new Date(jogo.data_hora);
           const jaComecou = new Date().getTime() >= dataJogo.getTime();
-          const bloqueado = jaComecou || jogo.encerrado || isPago || isPendente;
+          const bloqueado = jaComecou || jogo.encerrado;
 
           return (
             <div key={jogo.id} className="card">
@@ -172,7 +172,10 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
               
               <div className="match-row">
                 <div className="match-team">
-                  <div className="team-name">{jogo.time_casa}</div>
+                  <div className="team-name" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', textAlign: 'center' }}>
+                    {jogo.time_casa_logo && <img src={jogo.time_casa_logo} alt={jogo.time_casa} style={{ width: 40, height: 40, objectFit: 'contain' }} />}
+                    <span>{jogo.time_casa}</span>
+                  </div>
                   <input
                     className="form-input score-input"
                     value={palpites[jogo.id]?.casa ?? ''}
@@ -182,10 +185,13 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
                   />
                 </div>
                 
-                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-muted)' }}>X</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>X</div>
                 
                 <div className="match-team">
-                  <div className="team-name">{jogo.time_visitante}</div>
+                  <div className="team-name" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', textAlign: 'center' }}>
+                    {jogo.time_visitante_logo && <img src={jogo.time_visitante_logo} alt={jogo.time_visitante} style={{ width: 40, height: 40, objectFit: 'contain' }} />}
+                    <span>{jogo.time_visitante}</span>
+                  </div>
                   <input
                     className="form-input score-input"
                     value={palpites[jogo.id]?.visitante ?? ''}
@@ -212,11 +218,16 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
         })}
       </div>
 
-      {jogosDoDia.length > 0 && !isPago && (
-        <div className="mt-6" style={{ position: 'sticky', bottom: '2rem' }}>
-          <button className="btn btn-primary" style={{ boxShadow: 'var(--shadow-lg)' }} onClick={handleSalvar} disabled={loading || isPendente}>
-            {loading ? 'Processando...' : isPendente ? 'Ver Status do Pagamento' : 'Apostar no Dia'}
+      {jogosDoDia.length > 0 && (
+        <div className="mt-6" style={{ position: 'sticky', bottom: '2rem', display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-primary" style={{ boxShadow: 'var(--shadow-lg)' }} onClick={handleSalvar} disabled={loading}>
+            {loading ? 'Processando...' : 'Salvar Palpites'}
           </button>
+          {isPendente && (
+            <button className="btn btn-secondary" onClick={() => router.push(`/dashboard/pagamento?data=${abaDia}`)}>
+              Pagar Bolão
+            </button>
+          )}
         </div>
       )}
     </div>

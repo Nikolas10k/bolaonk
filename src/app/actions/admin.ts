@@ -82,12 +82,46 @@ export async function mockSincronizarJogosAPI() {
   const jogosBrasileirao = await fetchFromApiBzzoiro(9);
   const jogosCopa = await fetchFromApiBzzoiro(27);
 
+const logosBR: Record<string, string> = {
+  "Flamengo": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Flamengo_braz_logo.svg",
+  "Palmeiras": "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg",
+  "São Paulo": "https://upload.wikimedia.org/wikipedia/commons/4/4b/S%C3%A3o_Paulo_Futebol_Clube.png",
+  "Corinthians": "https://upload.wikimedia.org/wikipedia/pt/b/b4/Corinthians_simbolo.png",
+  "Fluminense": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Escudo_Fluminense.svg",
+  "Botafogo": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Botafogo_de_Futebol_e_Regatas_logo.svg",
+  "Vasco da Gama": "https://upload.wikimedia.org/wikipedia/pt/a/ac/CRVascodaGama.png",
+  "Cruzeiro": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Cruzeiro_Esporte_Clube_logo.svg",
+  "Atlético Mineiro": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Atletico_mineiro_galo.png",
+  "Grêmio": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Gremio_logo.svg",
+  "Internacional": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Escudo_do_Sport_Club_Internacional.svg",
+  "Bahia": "https://upload.wikimedia.org/wikipedia/pt/9/90/ECBahia.png",
+  "Vitória": "https://upload.wikimedia.org/wikipedia/pt/2/2c/Esporte_Clube_Vit%C3%B3ria_logo.png",
+  "Red Bull Bragantino": "https://upload.wikimedia.org/wikipedia/pt/9/94/Red_Bull_Bragantino.png",
+  "Athletico": "https://upload.wikimedia.org/wikipedia/pt/c/c7/Club_Athletico_Paranaense_2019.png",
+  "Coritiba": "https://upload.wikimedia.org/wikipedia/commons/4/48/Coritiba_Foot_Ball_Club_logo.svg",
+  "Mirassol": "https://upload.wikimedia.org/wikipedia/pt/6/64/Mirassol_Futebol_Clube.png",
+  "Remo": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Clube_do_Remo.svg",
+  "Chapecoense": "https://upload.wikimedia.org/wikipedia/commons/4/40/Associa%C3%A7%C3%A3o_Chapecoense_de_Futebol.svg",
+  "Santos": "https://upload.wikimedia.org/wikipedia/commons/3/35/Santos_logo.svg"
+};
+
+const getLogo = (teamName: string) => logosBR[teamName] || `https://ui-avatars.com/api/?name=${encodeURIComponent(teamName)}&background=random&color=fff`;
+
   const formatarJogos = (lista: any[], campeonato: 'brasileirao' | 'copa'): Jogo[] => {
-    return lista.map((item: any) => {
+    return lista.filter((item: any) => {
+      if (campeonato === 'brasileirao') {
+        const is2026 = item.event_date && item.event_date.startsWith('2026');
+        const roundNum = parseInt(item.round_number) || 0;
+        return is2026 && roundNum >= 14;
+      }
+      return true;
+    }).map((item: any) => {
       return {
         id: `api-${item.id}`,
         time_casa: item.home_team,
+        time_casa_logo: getLogo(item.home_team),
         time_visitante: item.away_team,
+        time_visitante_logo: getLogo(item.away_team),
         data_hora: item.event_date,
         rodada: item.round_number || 1,
         campeonato,

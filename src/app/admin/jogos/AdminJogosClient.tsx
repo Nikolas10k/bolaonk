@@ -76,7 +76,11 @@ export default function AdminJogosClient({ jogos }: { jogos: Jogo[] }) {
                   </div>
                 </td>
                 <td style={{ padding: '1rem', fontWeight: 600 }}>
-                  {j.time_casa} x {j.time_visitante}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {j.time_casa_logo && <img src={j.time_casa_logo} alt={j.time_casa} style={{ width: 24, height: 24, objectFit: 'contain' }} />}
+                    {j.time_casa} <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>x</span> {j.time_visitante}
+                    {j.time_visitante_logo && <img src={j.time_visitante_logo} alt={j.time_visitante} style={{ width: 24, height: 24, objectFit: 'contain' }} />}
+                  </div>
                 </td>
                 <td style={{ padding: '1rem' }}>
                   {j.encerrado ? (
