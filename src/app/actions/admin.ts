@@ -17,9 +17,22 @@ export async function aprovarPagamento(pagamentoId: string) {
   const db = await readDB();
   const pagIndex = db.pagamentos.findIndex(p => p.id === pagamentoId);
   if (pagIndex >= 0) {
-    db.pagamentos[pagIndex].status = db.pagamentos[pagIndex].status === 'pago' ? 'pendente' : 'pago';
+    const novoStatus = db.pagamentos[pagIndex].status === 'pago' ? 'pendente' : 'pago';
+    db.pagamentos[pagIndex].status = novoStatus;
+    
+    if (novoStatus === 'pago') {
+      // Marca notificação para o usuário ver
+      db.pagamentos[pagIndex].notificacao_nova = true;
+      db.pagamentos[pagIndex].confirmado_em = new Date().toISOString();
+    } else {
+      // Revogado: limpa notificação
+      db.pagamentos[pagIndex].notificacao_nova = false;
+      db.pagamentos[pagIndex].confirmado_em = undefined;
+    }
+    
     await writeDB(db);
     revalidatePath('/admin/usuarios');
+    revalidatePath('/dashboard');
   }
 }
 

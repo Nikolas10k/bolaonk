@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { salvarPalpites } from '../actions/palpites';
 import { Jogo, Palpite, Pagamento } from '@/lib/db';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }: { jogos: Jogo[], palpitesUsuario: Palpite[], pagamentosUsuario: Pagamento[] }) {
   const router = useRouter();
@@ -93,29 +94,25 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
     setLoading(false);
   };
 
-  const formatarDataBR = (dataIsoString: string) => {
-    if (!dataIsoString) return '';
-    const [ano, mes, dia] = dataIsoString.split('-');
-    return `${dia}/${mes}/${ano}`;
-  };
-
   return (
     <div>
+      {/* Abas de campeonato */}
       <div className="tabs-container">
         <button 
           className={`btn ${abaAtiva === 'brasileirao' ? 'btn-primary' : 'btn-secondary'}`} 
           onClick={() => setAbaAtiva('brasileirao')}
         >
-          Brasileirão
+          🇧🇷 Brasileirão
         </button>
         <button 
           className={`btn ${abaAtiva === 'copa' ? 'btn-primary' : 'btn-secondary'}`} 
           onClick={() => setAbaAtiva('copa')}
         >
-          Copa do Mundo
+          🌍 Copa do Mundo
         </button>
       </div>
 
+      {/* Scroll de rodadas */}
       {rodadasDisponiveis.length > 0 && (
         <div className="days-scroll">
           {rodadasDisponiveis.map(rodada => (
@@ -133,21 +130,41 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
 
       {abaRodada && <h2 className="title text-center mb-6">Jogos da Rodada {abaRodada}</h2>}
       
+      {/* Mensagem de feedback */}
       {mensagem && (
         <div className={`badge ${mensagem.tipo === 'sucesso' ? 'badge-success' : 'badge-danger'} mb-6`} style={{ width: '100%', padding: '1rem', borderRadius: '8px', fontSize: '0.875rem' }}>
           {mensagem.texto}
         </div>
       )}
 
+      {/* Banner: Pagamento confirmado */}
       {isPago && (
-        <div className="badge badge-success mb-6" style={{ width: '100%', padding: '1rem', borderRadius: '8px', fontSize: '0.875rem', textAlign: 'center' }}>
-          ✅ Pagamento confirmado para esta rodada. Seus palpites estão na disputa!
+        <div className="notif-pagamento" style={{ animation: 'none' }}>
+          <div className="notif-pagamento-icon" style={{ animation: 'none' }}>✅</div>
+          <div className="notif-pagamento-content">
+            <div className="notif-pagamento-titulo">Pagamento confirmado — Rodada {abaRodada}</div>
+            <div className="notif-pagamento-texto">Seus palpites estão válidos e participando do bolão!</div>
+          </div>
         </div>
       )}
 
+      {/* Banner: Pagamento pendente com botão de ir pagar */}
       {isPendente && (
-        <div className="badge badge-danger mb-6" style={{ width: '100%', padding: '1rem', borderRadius: '8px', fontSize: '0.875rem', textAlign: 'center', backgroundColor: 'rgba(245, 158, 11, 0.2)', color: '#F59E0B' }}>
-          ⏳ Pagamento pendente para esta rodada. Aguardando aprovação do admin.
+        <div className="banner-pendente">
+          <div className="banner-pendente-info">
+            <span style={{ fontSize: '1.4rem' }}>⏳</span>
+            <div>
+              <div style={{ fontWeight: 700, color: '#F59E0B', fontSize: '0.875rem' }}>
+                Pagamento pendente — Rodada {abaRodada}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                Realize o PIX para confirmar seus palpites.
+              </div>
+            </div>
+          </div>
+          <Link href={`/dashboard/pagamento?data=${abaRodada}`} className="banner-pendente-btn">
+            💰 Ver dados do PIX
+          </Link>
         </div>
       )}
 
@@ -157,6 +174,7 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
         </div>
       )}
 
+      {/* Lista de jogos */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {jogosDaRodada.map(jogo => {
           const dataJogo = new Date(jogo.data_hora);
@@ -166,50 +184,56 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
           return (
             <div key={jogo.id} className="card">
               <div className="flex justify-between items-center mb-4 text-muted" style={{ fontSize: '0.75rem' }}>
-                <span style={{ textTransform: 'uppercase' }}>{jogo.campeonato} • Rodada {jogo.rodada}</span>
-                <span>{dataJogo.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                <span style={{ textTransform: 'uppercase' }}>{jogo.campeonato === 'brasileirao' ? 'Brasileirão' : 'Copa do Mundo'} • Rd. {jogo.rodada}</span>
+                <span>{dataJogo.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
               </div>
               
               <div className="match-row">
                 <div className="match-team">
-                  <div className="team-name" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', textAlign: 'center' }}>
-                    {jogo.time_casa_logo && <img src={jogo.time_casa_logo} alt={jogo.time_casa} style={{ width: 40, height: 40, objectFit: 'contain' }} />}
+                  <div className="team-name" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
+                    {jogo.time_casa_logo && <img src={jogo.time_casa_logo} alt={jogo.time_casa} style={{ width: 36, height: 36, objectFit: 'contain' }} />}
                     <span>{jogo.time_casa}</span>
                   </div>
                   <input
                     className="form-input score-input"
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={palpites[jogo.id]?.casa ?? ''}
                     onChange={(e) => handleMudar(jogo.id, 'casa', e.target.value)}
                     disabled={bloqueado}
-                    placeholder="-"
+                    placeholder="–"
                   />
                 </div>
                 
-                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>X</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', paddingBottom: '2rem' }}>VS</div>
                 
                 <div className="match-team">
-                  <div className="team-name" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', textAlign: 'center' }}>
-                    {jogo.time_visitante_logo && <img src={jogo.time_visitante_logo} alt={jogo.time_visitante} style={{ width: 40, height: 40, objectFit: 'contain' }} />}
+                  <div className="team-name" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', textAlign: 'center' }}>
+                    {jogo.time_visitante_logo && <img src={jogo.time_visitante_logo} alt={jogo.time_visitante} style={{ width: 36, height: 36, objectFit: 'contain' }} />}
                     <span>{jogo.time_visitante}</span>
                   </div>
                   <input
                     className="form-input score-input"
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={palpites[jogo.id]?.visitante ?? ''}
                     onChange={(e) => handleMudar(jogo.id, 'visitante', e.target.value)}
                     disabled={bloqueado}
-                    placeholder="-"
+                    placeholder="–"
                   />
                 </div>
               </div>
 
               {jaComecou && !jogo.encerrado && (
                 <div className="text-center text-muted mt-4" style={{ fontSize: '0.75rem' }}>
-                  Partida iniciada. Palpites bloqueados.
+                  ⏱️ Partida em andamento. Palpites bloqueados.
                 </div>
               )}
               {jogo.encerrado && (
                 <div className="text-center mt-4" style={{ fontSize: '0.875rem' }}>
-                  <span className="text-primary font-bold">Placar Real: </span> 
+                  <span className="text-primary font-bold">Placar Final: </span> 
                   {jogo.placar_real_casa} x {jogo.placar_real_visitante}
                 </div>
               )}
@@ -218,15 +242,33 @@ export default function ListaJogos({ jogos, palpitesUsuario, pagamentosUsuario }
         })}
       </div>
 
+      {/* Botões de ação fixos no rodapé */}
       {jogosDaRodada.length > 0 && (
-        <div className="mt-6" style={{ position: 'sticky', bottom: '2rem', display: 'flex', gap: '1rem' }}>
-          <button className="btn btn-primary" style={{ boxShadow: 'var(--shadow-lg)' }} onClick={handleSalvar} disabled={loading}>
-            {loading ? 'Processando...' : 'Salvar Palpites'}
+        <div className="mt-6" style={{ 
+          position: 'sticky', 
+          bottom: '1rem', 
+          display: 'flex', 
+          flexDirection: 'column',
+          gap: '0.75rem',
+        }}>
+          {/* Botão principal: Salvar/Alterar palpites */}
+          <button 
+            className="btn btn-primary" 
+            style={{ boxShadow: 'var(--shadow-lg)' }} 
+            onClick={handleSalvar} 
+            disabled={loading || isPago}
+          >
+            {loading ? '⏳ Processando...' : isPago ? '✅ Palpites Confirmados' : '💾 Salvar Palpites'}
           </button>
+
+          {/* Botão de pagamento — sempre visível quando pendente */}
           {isPendente && (
-            <button className="btn btn-secondary" onClick={() => router.push(`/dashboard/pagamento?data=${abaRodada}`)}>
-              Pagar Bolão
-            </button>
+            <Link 
+              href={`/dashboard/pagamento?data=${abaRodada}`} 
+              className="btn btn-pagar-bolao"
+            >
+              💰 Pagar Bolão — Ver dados do PIX
+            </Link>
           )}
         </div>
       )}

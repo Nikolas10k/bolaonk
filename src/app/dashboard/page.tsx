@@ -2,6 +2,7 @@ import { getCurrentUser } from '../actions/auth';
 import { readDB } from '@/lib/db';
 import ListaJogos from './ListaJogos';
 import { redirect } from 'next/navigation';
+import NotificacaoPagamento from './NotificacaoPagamento';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -11,6 +12,9 @@ export default async function DashboardPage() {
 
   const palpitesUsuario = db.palpites.filter(p => p.user_id === user.id);
   const pagamentosUsuario = db.pagamentos.filter(p => p.user_id === user.id);
+
+  // Pagamentos recém confirmados que o usuário ainda não viu
+  const notificacoesNovas = pagamentosUsuario.filter(p => p.status === 'pago' && p.notificacao_nova === true);
 
   return (
     <div>
@@ -22,6 +26,16 @@ export default async function DashboardPage() {
           </p>
         </div>
       </div>
+
+      {/* Notificações de pagamento confirmado */}
+      {notificacoesNovas.map(pag => (
+        <NotificacaoPagamento
+          key={pag.id}
+          pagamentoId={pag.id}
+          rodada={pag.data_referencia}
+          confirmadoEm={pag.confirmado_em}
+        />
+      ))}
       
       <ListaJogos jogos={db.jogos} palpitesUsuario={palpitesUsuario} pagamentosUsuario={pagamentosUsuario} />
     </div>

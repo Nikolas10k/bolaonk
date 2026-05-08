@@ -15,6 +15,8 @@ export type Pagamento = {
   user_id: string;
   data_referencia: string; // Ex: '2026-10-17'
   status: 'pendente' | 'pago';
+  notificacao_nova?: boolean; // true = usuário ainda não viu a confirmação
+  confirmado_em?: string; // ISO string de quando foi confirmado pelo admin
 };
 
 export type Jogo = {
@@ -115,6 +117,11 @@ export async function readDB(): Promise<DatabaseSchema> {
     if (!parsed.pagamentos) {
       parsed.pagamentos = [];
     }
+    // Garantir retrocompatibilidade
+    parsed.pagamentos = parsed.pagamentos.map((p: any) => ({
+      ...p,
+      notificacao_nova: p.notificacao_nova ?? false,
+    }));
     if (!parsed.pontuacoes) {
       parsed.pontuacoes = [];
     }

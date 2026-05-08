@@ -42,7 +42,7 @@ export async function salvarPalpites(
     }
   }
 
-  // Verifica/Cria pagamento para esse dia
+  // Verifica/Cria pagamento para essa rodada
   const pagamentoIndex = db.pagamentos.findIndex(p => p.user_id === user.id && p.data_referencia === dataReferencia);
   let statusAtual = 'pendente';
 
@@ -53,17 +53,34 @@ export async function salvarPalpites(
       id: `pag-${Date.now()}`,
       user_id: user.id,
       data_referencia: dataReferencia,
-      status: 'pendente'
+      status: 'pendente',
+      notificacao_nova: false,
     };
     db.pagamentos.push(novoPagamento);
   }
 
   await writeDB(db);
 
+  // Sempre redireciona para a página de pagamento quando está pendente,
+  // garantindo que o usuário veja os dados de PIX para realizar o pagamento.
   if (statusAtual === 'pendente') {
     return { success: true, redirectTo: `/dashboard/pagamento?data=${dataReferencia}` };
   }
 
   revalidatePath('/dashboard');
+  return { success: true };
+}
+
+export async function marcarNotificacaoLida(pagamentoId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: 'Não autorizado.' };
+
+  const db = await readDB();
+  const pagIndex = db.pagamentos.findIndex(p => p.id === pagamentoId && p.user_id === user.id);
+  if (pagIndex >= 0) {
+    db.pagamentos[pagIndex].notificacao_nova = false;
+    await writeDB(db);
+    revalidatePath('/dashboard');
+  }
   return { success: true };
 }
